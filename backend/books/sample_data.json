@@ -1,0 +1,26 @@
+[
+  {
+    "title": "The Hobbit",
+    "author": "J.R.R. Tolkien",
+    "description": "Bilbo Baggins is drawn into a dangerous quest to reclaim a lost dwarf kingdom from the dragon Smaug. The story explores courage, friendship, and the gradual growth of an unlikely hero through magic and peril.",
+    "rating": 4.7,
+    "reviews_count": 1520,
+    "book_url": "https://example.com/books/the-hobbit"
+  },
+  {
+    "title": "Dune",
+    "author": "Frank Herbert",
+    "description": "On the desert planet Arrakis, Paul Atreides becomes entangled in imperial politics, prophecy, and ecological survival. The novel combines space conflict, religion, and strategy in a future world.",
+    "rating": 4.5,
+    "reviews_count": 980,
+    "book_url": "https://example.com/books/dune"
+  },
+  {
+    "title": "Gone Girl",
+    "author": "Gillian Flynn",
+    "description": "A tense mystery unfolds when Amy Dunne disappears and suspicion falls on her husband Nick. The narrative blends unreliable perspectives, crime investigation, and psychological manipulation.",
+    "rating": 4.1,
+    "reviews_count": 2100,
+    "book_url": "https://example.com/books/gone-girl"
+  }
+]
