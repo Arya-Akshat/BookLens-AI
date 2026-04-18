@@ -238,6 +238,10 @@ Typical grounded answer:
 
 ![Recommendations](<images/Screenshot 2026-04-18 at 2.05.56 PM.png>)
 
+### Additional UI View
+
+![Additional UI View](<images/Screenshot 2026-04-18 at 2.06.09 PM.png>)
+
 ## Testing
 
 Run backend tests:
