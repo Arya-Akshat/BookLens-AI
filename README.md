@@ -63,6 +63,8 @@ frontend/
   app/
   components/
   lib/api.ts
+books/
+  *.pdf
 .env.example
 README.md
 ```
@@ -82,6 +84,28 @@ python manage.py runserver
 ```
 
 Backend URL: `http://127.0.0.1:8000`
+
+### Optional: Build Data + Vector Store From `books/` PDFs
+
+The repository includes a `books/` folder with sample PDF files for testing retrieval and RAG flows.
+
+To ingest those PDFs into the `Book` table and rebuild the Chroma vector store:
+
+```bash
+cd backend
+python manage.py ingest_pdfs --source-dir ../books
+```
+
+Notes:
+
+- This command extracts text from PDFs, creates/updates book rows, and rebuilds embeddings.
+- By default, it replaces existing rows first.
+- To keep existing DB rows and add PDFs on top:
+
+```bash
+cd backend
+python manage.py ingest_pdfs --source-dir ../books --keep-existing
+```
 
 ### 2) Frontend
 
