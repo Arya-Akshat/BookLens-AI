@@ -27,6 +27,8 @@ env/
 backend/db.sqlite3
 backend/*.sqlite3
 backend/chroma_db/
+backend/backend/chroma_db/
+chroma_db/
 backend/media/
 backend/staticfiles/
 
@@ -52,3 +54,6 @@ Thumbs.db
 *.tmp
 *.swp
 *.swo
+
+# ----- Workspace artifacts -----
+=4.2

@@ -98,7 +98,12 @@ CACHES = {
     }
 }
 
-CHROMA_DB_PATH = os.getenv("CHROMA_DB_PATH", str(BASE_DIR / "chroma_db"))
+_raw_chroma_path = os.getenv("CHROMA_DB_PATH", str(BASE_DIR / "chroma_db"))
+_chroma_path_obj = Path(_raw_chroma_path)
+if not _chroma_path_obj.is_absolute():
+    # Resolve relative paths from workspace root so behavior is stable across cwd.
+    _chroma_path_obj = (BASE_DIR.parent / _chroma_path_obj).resolve()
+CHROMA_DB_PATH = str(_chroma_path_obj)
 EMBEDDING_MODEL_NAME = os.getenv("EMBEDDING_MODEL_NAME", "all-MiniLM-L6-v2")
 BOOK_CHUNK_SIZE = int(os.getenv("BOOK_CHUNK_SIZE", "420"))
 BOOK_CHUNK_OVERLAP = int(os.getenv("BOOK_CHUNK_OVERLAP", "80"))

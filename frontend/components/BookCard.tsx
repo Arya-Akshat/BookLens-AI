@@ -12,6 +12,7 @@ export default function BookCard({ book }: BookCardProps) {
         <div>
           <h2 className="text-xl font-semibold text-ink">{book.title}</h2>
           <p className="text-sm text-ink/70">{book.author}</p>
+          <p className="text-xs text-ink/60">Reviews: {book.reviews_count}</p>
         </div>
         <span className="rounded-full bg-tide px-3 py-1 text-xs font-semibold text-white">
           {book.rating.toFixed(1)}

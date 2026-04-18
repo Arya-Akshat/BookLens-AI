@@ -1,163 +1,160 @@
-# AI-Powered Document Intelligence Platform
+# Document Intelligence Platform
 
-Production-ready full-stack platform for book data ingestion, retrieval, and AI-powered question answering.
+This project is my full-stack assignment submission for a document intelligence workflow over book data. It scrapes books, stores metadata, builds embeddings, and answers grounded questions with source citations.
 
-## Features
+## What This App Does
 
-- Selenium-based scraping from books.toscrape.com
-- Metadata storage in Django ORM (MySQL-ready)
-- Embeddings with Sentence Transformers
-- Vector storage with ChromaDB (fallback memory index for dev/test resilience)
-- Full RAG pipeline with contextual answers and citations
-- AI insights:
+- Scrapes books from books.toscrape.com using Selenium
+- Stores metadata in Django models (MySQL-ready, SQLite-friendly for local runs)
+- Creates vector embeddings for retrieval (ChromaDB with resilient in-memory fallback)
+- Runs a full RAG pipeline for question answering with citations
+- Generates book insights (summary + genre + recommendation logic)
+- Exposes REST APIs with Django REST Framework
+- Provides a Next.js + Tailwind frontend for listing, detail, and Q&A
+
+## Assignment Checklist Coverage
+
+- Backend GET APIs:
+  - `GET /api/books/` list books
+  - `GET /api/books/<id>/` full detail + AI insights
+  - `GET /api/books/recommend/<id>/` related books
+- Backend POST APIs:
+  - `POST /api/books/upload/` scrape/process books
+  - `POST /api/ask/` RAG query endpoint
+- Required frontend pages:
+  - Dashboard / book listing
+  - Book detail page
+  - Q&A interface
+- AI insights included (at least 2 required):
   - Summary generation
   - Genre classification
-  - Similar book recommendation
-- REST APIs via Django REST Framework
-- Next.js + Tailwind frontend:
-  - Dashboard
-  - Book detail + AI insights
-  - Q&A interface with sources
-- Django tests for upload, Q&A, and recommendation endpoints
-- Sample dataset + management command loader
+  - Recommendation logic
 
 ## Tech Stack
 
-- Backend: Python, Django, Django REST Framework, MySQL, ChromaDB, Sentence Transformers, Selenium
-- LLM Provider: LM Studio (default local), OpenAI (optional)
+- Backend: Python, Django, Django REST Framework
+- Database: MySQL (configurable), SQLite (local default)
+- Vector DB: ChromaDB
+- Embeddings: Sentence Transformers
+- LLM: LM Studio (primary), OpenAI/Groq (optional)
 - Frontend: Next.js (App Router), Tailwind CSS
+- Automation: Selenium
 
 ## Project Structure
 
-- backend/
-  - manage.py
-  - requirements.txt
-  - config/
-  - books/
-    - models.py
-    - serializers.py
-    - views.py
-    - urls.py
-    - tests.py
-    - sample_data.json
-    - services/
-      - scraper.py
-      - embeddings.py
-      - rag_pipeline.py
-      - ai_insights.py
-- frontend/
-  - app/
-  - components/
-  - lib/api.ts
-- .env.example
-- README.md
+```text
+backend/
+  manage.py
+  requirements.txt
+  config/
+  books/
+    models.py
+    serializers.py
+    views.py
+    urls.py
+    tests.py
+    sample_data.json
+    services/
+      scraper.py
+      embeddings.py
+      rag_pipeline.py
+      ai_insights.py
+frontend/
+  app/
+  components/
+  lib/api.ts
+.env.example
+README.md
+```
+
+## Setup Instructions
+
+### 1) Backend
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -r backend/requirements.txt
+cd backend
+python manage.py migrate
+python manage.py load_sample_data
+python manage.py runserver
+```
+
+Backend URL: `http://127.0.0.1:8000`
+
+### 2) Frontend
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Frontend URL: `http://localhost:3000`
 
 ## Environment Variables
 
-Copy .env.example to .env and update values.
+Copy `.env.example` to `.env` and adjust values if needed.
 
-Key variables:
+Important keys:
 
-- DB_ENGINE=django.db.backends.mysql
-- MYSQL_DATABASE, MYSQL_USER, MYSQL_PASSWORD, MYSQL_HOST, MYSQL_PORT
-- CHROMA_DB_PATH
-- EMBEDDING_MODEL_NAME
-- LM_STUDIO_BASE_URL
-- LM_STUDIO_MODEL
-- OPENAI_API_KEY (optional)
-- NEXT_PUBLIC_API_BASE_URL
-
-## Backend Setup
-
-1. Create and activate virtual environment (optional if already created)
-2. Install dependencies
-
-   pip install -r backend/requirements.txt
-
-3. Run migrations
-
-   cd backend
-   python manage.py migrate
-
-4. Load sample data and embeddings
-
-   python manage.py load_sample_data
-
-5. Start backend server
-
-   python manage.py runserver
-
-Backend default URL:
-
-- http://127.0.0.1:8000
-
-## Frontend Setup
-
-1. Install dependencies
-
-   cd frontend
-   npm install
-
-2. Start development server
-
-   npm run dev
-
-Frontend default URL:
-
-- http://localhost:3000
-
-## Scraper Usage
-
-### API trigger for scraping
-
-POST /api/books/upload/
-
-Body examples:
-
-- Bulk scrape first 2 pages:
-
-  {
-    "pages": 2,
-    "bulk": true
-  }
-
-- Single book scrape:
-
-  {
-    "book_url": "https://books.toscrape.com/catalogue/a-light-in-the-attic_1000/index.html",
-    "bulk": false
-  }
+- `DB_ENGINE`
+- `MYSQL_DATABASE`, `MYSQL_USER`, `MYSQL_PASSWORD`, `MYSQL_HOST`, `MYSQL_PORT`
+- `CHROMA_DB_PATH`
+- `EMBEDDING_MODEL_NAME`
+- `LM_STUDIO_BASE_URL`, `LM_STUDIO_MODEL`
+- `OPENAI_API_KEY` (optional)
+- `GROQ_API_KEY` (optional)
+- `NEXT_PUBLIC_API_BASE_URL`
 
 ## API Documentation
 
-### GET APIs
+### GET Endpoints
 
-- GET /api/books/
-  - List all books
+- `GET /api/books/`: List all books
+- `GET /api/books/<id>/`: Get a single book with AI insights
+- `GET /api/books/recommend/<id>/`: Get related book recommendations
 
-- GET /api/books/<id>/
-  - Get single book details + AI insights
+### POST Endpoints
 
-- GET /api/books/recommend/<id>/
-  - Recommend similar books
+- `POST /api/books/upload/`: Scrape and ingest books
+- `POST /api/ask/`: Ask a retrieval-grounded question
 
-### POST APIs
+### `POST /api/books/upload/` example payloads
 
-- POST /api/books/upload/
-  - Scrape and store books
+Bulk scrape first 2 pages:
 
-- POST /api/ask/
-  - RAG-based question answering
+```json
+{
+  "pages": 2,
+  "bulk": true
+}
+```
+
+Single book scrape:
+
+```json
+{
+  "book_url": "https://books.toscrape.com/catalogue/a-light-in-the-attic_1000/index.html",
+  "bulk": false
+}
+```
+
+### `POST /api/ask/` request/response
 
 Request:
 
+```json
 {
   "question": "Which books involve space politics?",
   "top_k": 5
 }
+```
 
 Response:
 
+```json
 {
   "question": "Which books involve space politics?",
   "answer": "Dune prominently explores space politics and imperial conflict [1].",
@@ -171,77 +168,77 @@ Response:
   ],
   "citations": ["[1]"]
 }
+```
 
 ## cURL Samples
 
-### List books
-
+```bash
 curl -X GET http://127.0.0.1:8000/api/books/
-
-### Book detail
-
 curl -X GET http://127.0.0.1:8000/api/books/1/
-
-### Recommendations
-
 curl -X GET http://127.0.0.1:8000/api/books/recommend/1/
-
-### Upload scrape (bulk)
 
 curl -X POST http://127.0.0.1:8000/api/books/upload/ \
   -H "Content-Type: application/json" \
   -d '{"pages":1,"bulk":true}'
 
-### Ask RAG question
-
 curl -X POST http://127.0.0.1:8000/api/ask/ \
   -H "Content-Type: application/json" \
   -d '{"question":"Which fantasy books are hero journeys?","top_k":5}'
+```
 
-## Postman Collection Tips
-
-- Set base URL variable: http://127.0.0.1:8000
-- Add requests for the 5 endpoints above
-- Use JSON body for upload and ask endpoints
-
-## Testing
-
-Run Django tests:
-
-cd backend
-python manage.py test
-
-Included tests:
-
-- Book upload API test
-- Q&A endpoint test
-- Recommendation API test
-
-## Sample Q&A
+## Sample Questions and Answers
 
 Question:
 
 - Which books discuss political conflict in a futuristic setting?
 
-Expected grounded answer:
+Typical grounded answer:
 
-- Dune is likely returned with citation from its embedded description chunk.
+- Dune is returned with citation markers from retrieved context chunks.
 
-## Screenshots
+## Screenshots (UI)
 
-Add screenshots after running locally:
+### Dashboard
 
-- docs/screenshots/dashboard.png
-- docs/screenshots/book-detail.png
-- docs/screenshots/rag-qa.png
+![Dashboard](<images/Screenshot 2026-04-18 at 2.02.46 PM.png>)
 
-## Notes on MySQL
+### Book Detail
 
-- This project is configured for MySQL via environment settings.
-- For local quick-start, SQLite fallback is automatic if DB_ENGINE is not set to MySQL.
+![Book Detail](<images/Screenshot 2026-04-18 at 2.02.53 PM.png>)
 
-## Extra Features Included
+### Q&A Interface
 
-- Basic async scraping flow with ThreadPoolExecutor for save+embed processing
-- Bulk scraping support via pages parameter
+![Q&A Interface](<images/Screenshot 2026-04-18 at 2.03.01 PM.png>)
+
+### Recommendations / Insight View
+
+![Recommendations](<images/Screenshot 2026-04-18 at 2.05.56 PM.png>)
+
+## Testing
+
+Run backend tests:
+
+```bash
+cd backend
+python manage.py test
+```
+
+If MySQL is not running locally:
+
+```bash
+cd backend
+DB_ENGINE=django.db.backends.sqlite3 python manage.py test
+```
+
+Included tests:
+
+- Book upload API
+- Q&A endpoint
+- Recommendation endpoint
+
+## Extra Work Included
+
 - Caching for summaries and RAG responses
+- Chunk size/overlap controls for embeddings
+- Async-style parallel save/embed flow using `ThreadPoolExecutor` for multi-item ingest
+- Bulk scraping with configurable page count

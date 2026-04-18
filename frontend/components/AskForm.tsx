@@ -1,12 +1,25 @@
 "use client";
 
 import { useState } from "react";
-import { api, AskResponse } from "@/lib/api";
+import { api, AskResponse, Book } from "@/lib/api";
 import LoadingSpinner from "@/components/LoadingSpinner";
+
+type SourceInsight = {
+  book: Book;
+  recommendations: Array<{
+    id: number;
+    title: string;
+    author: string;
+    rating: number;
+    book_url: string;
+  }>;
+};
 
 export default function AskForm() {
   const [question, setQuestion] = useState("");
   const [result, setResult] = useState<AskResponse | null>(null);
+  const [sourceInsight, setSourceInsight] = useState<SourceInsight | null>(null);
+  const [insightLoading, setInsightLoading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -14,6 +27,7 @@ export default function AskForm() {
     event.preventDefault();
     setError(null);
     setResult(null);
+    setSourceInsight(null);
 
     if (!question.trim()) {
       setError("Please enter a question.");
@@ -24,6 +38,22 @@ export default function AskForm() {
       setLoading(true);
       const response = await api.askQuestion(question);
       setResult(response);
+
+      const primarySource = response.sources[0];
+      if (primarySource?.book_id) {
+        setInsightLoading(true);
+        try {
+          const [book, recPayload] = await Promise.all([
+            api.getBook(primarySource.book_id),
+            api.getRecommendations(primarySource.book_id)
+          ]);
+          setSourceInsight({ book, recommendations: recPayload.recommendations });
+        } catch {
+          setSourceInsight(null);
+        } finally {
+          setInsightLoading(false);
+        }
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to query API.");
     } finally {
@@ -78,6 +108,39 @@ export default function AskForm() {
                   </li>
                 ))}
               </ul>
+            </div>
+
+            <div>
+              <h4 className="font-semibold text-ink">Book Insights</h4>
+              {insightLoading && <LoadingSpinner label="Loading summary, genre, and recommendations..." />}
+              {!insightLoading && sourceInsight && (
+                <div className="mt-2 space-y-3">
+                  <div className="rounded-lg bg-white p-3">
+                    <p className="font-semibold text-ink">{sourceInsight.book.title}</p>
+                    <p className="text-ink/70">Genre: {sourceInsight.book.ai_insights?.genre || "general"}</p>
+                    <p className="mt-2 whitespace-pre-wrap text-ink/90">
+                      {sourceInsight.book.ai_insights?.summary || "No summary available."}
+                    </p>
+                  </div>
+
+                  <div className="rounded-lg bg-white p-3">
+                    <p className="font-semibold text-ink">Recommendations</p>
+                    {sourceInsight.recommendations.length === 0 ? (
+                      <p className="text-ink/70">No recommendations found.</p>
+                    ) : (
+                      <ul className="mt-2 space-y-2">
+                        {sourceInsight.recommendations.map((item) => (
+                          <li key={item.id} className="rounded-md border border-ink/10 p-2">
+                            <p className="font-medium text-ink">{item.title}</p>
+                            <p className="text-ink/70">{item.author}</p>
+                            <p className="text-ink/70">Rating: {item.rating.toFixed(1)}</p>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}

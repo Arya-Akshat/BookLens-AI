@@ -115,11 +115,23 @@ class EmbeddingService:
             top_k = 1
         query_embedding = self.embed_query(query)
         if self.collection is not None:
-            return self.collection.query(
-                query_embeddings=[query_embedding],
-                n_results=top_k,
-                include=["documents", "metadatas", "distances"],
-            )
+            try:
+                return self.collection.query(
+                    query_embeddings=[query_embedding],
+                    n_results=top_k,
+                    include=["documents", "metadatas", "distances"],
+                )
+            except Exception as exc:
+                if "dimension" in str(exc).lower() and "embedding" in str(exc).lower():
+                    self._rebuild_collection_from_db()
+                    query_embedding = self.embed_query(query)
+                    if self.collection is not None:
+                        return self.collection.query(
+                            query_embeddings=[query_embedding],
+                            n_results=top_k,
+                            include=["documents", "metadatas", "distances"],
+                        )
+                raise
 
         ranked = []
         for item in self._memory_store.values():
@@ -133,6 +145,24 @@ class EmbeddingService:
             "metadatas": [[entry[1]["metadata"] for entry in top]],
             "distances": [[entry[0] for entry in top]],
         }
+
+    def _rebuild_collection_from_db(self) -> None:
+        self._ensure_backends()
+        if self.client is not None:
+            try:
+                self.client.delete_collection(name="books")
+            except Exception:
+                pass
+            self.collection = self.client.get_or_create_collection(name="books")
+
+        self._memory_store.clear()
+        self._book_hash_cache.clear()
+        self._query_cache.clear()
+
+        from books.models import Book
+
+        for book in Book.objects.all().iterator():
+            self.upsert_book(book)
 
     def _embed_text(self, text: str) -> List[float]:
         if self.model is not None:
